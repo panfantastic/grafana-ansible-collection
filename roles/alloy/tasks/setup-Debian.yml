@@ -1,12 +1,23 @@
-- name: Include RedHat/Rocky setup
-  ansible.builtin.include_tasks:
-    file: setup-Redhat.yml
-  when: ansible_os_family in ['RedHat', 'Rocky']
+---
+- name: Install unzip
+  ansible.builtin.package:
+    name: unzip
+    state: present
+  become: true
 
-- name: Include Debian/Ubuntu setup
-  ansible.builtin.include_tasks:
-    file: setup-Debian.yml
-  when: ansible_os_family == 'Debian'
+- name: Create alloy group
+  ansible.builtin.group:
+    name: "{{ service_group }}"
+    system: true
+  become: true
+
+- name: Create alloy user
+  ansible.builtin.user:
+    name: "{{ service_user }}"
+    group: "{{ service_group }}"
+    system: true
+    create_home: false  # Appropriate for a system user, usually doesn't need a home directory
+  become: true
 
 - name: Download alloy binary
   ansible.builtin.get_url:
